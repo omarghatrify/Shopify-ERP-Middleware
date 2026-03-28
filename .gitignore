@@ -1,0 +1,4 @@
+@cds-models
+node_modules
+.env
+db.sqlite

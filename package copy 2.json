@@ -1,0 +1,50 @@
+{
+  "devDependencies": {
+    "@cap-js/cds-typer": ">=0.1",
+    "@cap-js/cds-types": "^0.15.0",
+    "@cap-js/sqlite": "^2",
+    "@shopify/api-codegen-preset": "^2.0.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4",
+    "typescript": "^5"
+  },
+  "imports": {
+    "#cds-models/*": "./@cds-models/*/index.js"
+  },
+  "name": "shopify-app-middleware",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sap-cloud-sdk/connectivity": "^4",
+    "@sap-cloud-sdk/http-client": "^4",
+    "@sap-cloud-sdk/resilience": "^4.5.1",
+    "@sap/cds": "^9",
+    "@shopify/admin-api-client": "^1.1.2",
+    "@shopify/shopify-api": "^13.0.0",
+    "@shopify/storefront-api-client": "^1.0.10"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "graphql-codegen": "graphql-codegen"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "file": "db/data.sqlite"
+      },
+      "OP_PRODUCT_0002": {
+        "kind": "odata",
+        "model": "srv/external/OP_PRODUCT_0002",
+        "credentials": {
+          "destination": "PS4-CLNT300",
+          "path": "/sap/opu/odata4/sap/api_product/srvd_a2x/sap/product/0002",
+          "queries": {
+            "sap-client": "110"
+          }
+        }
+      },
+      "destinations": true
+    }
+  }
+}

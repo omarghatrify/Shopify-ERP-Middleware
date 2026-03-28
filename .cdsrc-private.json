@@ -1,0 +1,37 @@
+{
+  "requires": {
+    "[hybrid]": {
+      "connectivity": {
+        "binding": {
+          "type": "cf",
+          "apiEndpoint": "https://api.cf.eu10-005.hana.ondemand.com",
+          "org": "Crystal asfour international_cloud-platform-integration-test-3gkrs4cv",
+          "space": "CPI_DEV_SPACE",
+          "instance": "sample-connectivity",
+          "key": "sample-connectivity-key",
+          "credentials": {
+            "onpremise_proxy_host": "localhost"
+          }
+        },
+        "kind": "connectivity",
+        "vcap": {
+          "name": "connectivity"
+        }
+      },
+      "destinations": {
+        "binding": {
+          "type": "cf",
+          "apiEndpoint": "https://api.cf.eu10-005.hana.ondemand.com",
+          "org": "Crystal asfour international_cloud-platform-integration-test-3gkrs4cv",
+          "space": "CPI_DEV_SPACE",
+          "instance": "sample-destination",
+          "key": "sample-destination-key"
+        },
+        "kind": "destinations",
+        "vcap": {
+          "name": "destinations"
+        }
+      }
+    }
+  }
+}
