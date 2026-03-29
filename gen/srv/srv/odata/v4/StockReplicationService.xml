@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+    <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="StockReplicationService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Annotation Term="Core.Links">
+        <Collection>
+          <Record>
+            <PropertyValue Property="rel" String="author"/>
+            <PropertyValue Property="href" String="https://cap.cloud.sap"/>
+          </Record>
+        </Collection>
+      </Annotation>
+      <EntityContainer Name="EntityContainer">
+        <EntitySet Name="Inventory" EntityType="StockReplicationService.Inventory"/>
+        <ActionImport Name="SyncStock" Action="StockReplicationService.SyncStock"/>
+      </EntityContainer>
+      <EntityType Name="Inventory">
+        <Key>
+          <PropertyRef Name="sku"/>
+          <PropertyRef Name="locationId"/>
+        </Key>
+        <Property Name="sku" Type="Edm.String" Nullable="false"/>
+        <Property Name="locationId" Type="Edm.String" Nullable="false"/>
+        <Property Name="quantity" Type="Edm.Decimal" Scale="variable"/>
+        <Property Name="last_updated_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="last_replicated_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="needs_replication" Type="Edm.Boolean" DefaultValue="true"/>
+        <Property Name="replication_attempts" Type="Edm.Int32" DefaultValue="0"/>
+        <Property Name="last_error" Type="Edm.String"/>
+      </EntityType>
+      <ComplexType Name="StockSyncData">
+        <Property Name="sku" Type="Edm.String"/>
+        <Property Name="qty" Type="Edm.Decimal" Scale="variable"/>
+      </ComplexType>
+      <ComplexType Name="return_StockReplicationService_SyncStock">
+        <Property Name="message" Type="Edm.String"/>
+      </ComplexType>
+      <Action Name="SyncStock" IsBound="false">
+        <Parameter Name="data" Type="Collection(StockReplicationService.StockSyncData)" Nullable="true"/>
+        <ReturnType Type="StockReplicationService.return_StockReplicationService_SyncStock"/>
+      </Action>
+      <Annotations Target="StockReplicationService.StockSyncData/sku">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="StockReplicationService.StockSyncData/qty">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

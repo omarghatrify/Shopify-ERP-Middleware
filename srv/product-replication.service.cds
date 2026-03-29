@@ -1,7 +1,6 @@
 using {db} from '../db/scheme.cds';
-using {OP_PRODUCT_0002} from './external/OP_PRODUCT_0002';
 
-service IntegrationService {
+service ProductReplicationService {
     entity Products as projection on db.Product;
 
     action SyncProducts(correlationId: String,
@@ -20,16 +19,17 @@ service IntegrationService {
         }
     };
 
-
-    type StockSyncData {
-        @mandatory sku   : String;
-        @mandatory qty : Decimal;
-
-    };
-
-    action SyncStock(data: many StockSyncData)         returns {
-        message : String;
-    };
+    /** Accepts OData-style product payload (e.g. API_PRODUCT `value` array); maps and runs SyncProducts. */
+    @open
+    action LoadProducts(correlationId: String, overwrite: Boolean, @mandatory value: many {
+        Product             : String;
+        BaseUnit            : String;
+        _ProductDescription : many {
+            Language           : String;
+            ProductDescription : String;
+            Product            : String;
+        };
+    })
 
     type ProductMappingSyncData {
         @mandatory sku  : String;
@@ -38,12 +38,12 @@ service IntegrationService {
             @mandatory val  : String;
             @mandatory lang : String;
         }
-        @mandatory desc : many {
+        desc : many {
             @mandatory val  : String;
             @mandatory lang : String;
         }
-    };
+    }
+}
 
 
-    entity Inventory as projection on db.Inventory;
-};
+annotate ProductReplicationService with @cds.server.body_parser.limit: '20mb';

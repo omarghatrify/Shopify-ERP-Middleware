@@ -29,6 +29,9 @@ entity Product {
 
         Inventory            : Composition of many Inventory
                                    on Inventory.Product = $self;
+
+        ScheduledPrice       : Composition of many ScheduledPrice
+                                   on ScheduledPrice.Product = $self;
 };
 
 
@@ -38,6 +41,26 @@ entity Inventory {
     key locationId           : String;
 
         quantity             : Decimal;
+        last_updated_at      : Timestamp;
+        last_replicated_at   : Timestamp;
+
+        needs_replication    : Boolean default true;
+
+        replication_attempts : Integer default 0;
+        last_error           : String;
+
+        Product              : Association to Product
+                                   on Product.sap_material = $self.sku;
+}
+
+
+// Price replication (scheduled by validFrom)
+entity ScheduledPrice {
+    key sku                  : String;
+    key currency             : String;
+
+        price                : Decimal;
+        validFrom            : Date;
         last_updated_at      : Timestamp;
         last_replicated_at   : Timestamp;
 

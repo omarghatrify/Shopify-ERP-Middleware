@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+    <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Validation.V1.xml">
+    <edmx:Include Alias="Validation" Namespace="Org.OData.Validation.V1"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="ProductReplicationService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Annotation Term="Core.Links">
+        <Collection>
+          <Record>
+            <PropertyValue Property="rel" String="author"/>
+            <PropertyValue Property="href" String="https://cap.cloud.sap"/>
+          </Record>
+        </Collection>
+      </Annotation>
+      <EntityContainer Name="EntityContainer">
+        <EntitySet Name="Products" EntityType="ProductReplicationService.Products">
+          <NavigationPropertyBinding Path="Inventory" Target="Inventory"/>
+          <NavigationPropertyBinding Path="ScheduledPrice" Target="ScheduledPrice"/>
+        </EntitySet>
+        <EntitySet Name="Inventory" EntityType="ProductReplicationService.Inventory">
+          <NavigationPropertyBinding Path="Product" Target="Products"/>
+        </EntitySet>
+        <EntitySet Name="ScheduledPrice" EntityType="ProductReplicationService.ScheduledPrice">
+          <NavigationPropertyBinding Path="Product" Target="Products"/>
+        </EntitySet>
+        <ActionImport Name="SyncProducts" Action="ProductReplicationService.SyncProducts"/>
+        <ActionImport Name="LoadProducts" Action="ProductReplicationService.LoadProducts"/>
+      </EntityContainer>
+      <EntityType Name="Products">
+        <Key>
+          <PropertyRef Name="sap_material"/>
+        </Key>
+        <Property Name="sap_material" Type="Edm.String" Nullable="false"/>
+        <Property Name="shopify_variant_id" Type="Edm.String"/>
+        <Property Name="shopify_product_id" Type="Edm.String"/>
+        <Property Name="shopify_inventory_id" Type="Edm.String"/>
+        <Property Name="created_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modified_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="uom" Type="Edm.String"/>
+        <Property Name="name" Type="Collection(ProductReplicationService.Products_name)" Nullable="true"/>
+        <Property Name="desc" Type="Collection(ProductReplicationService.Products_desc)" Nullable="true"/>
+        <NavigationProperty Name="Inventory" Type="Collection(ProductReplicationService.Inventory)" Partner="Product">
+          <OnDelete Action="Cascade"/>
+        </NavigationProperty>
+        <NavigationProperty Name="ScheduledPrice" Type="Collection(ProductReplicationService.ScheduledPrice)" Partner="Product">
+          <OnDelete Action="Cascade"/>
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="Inventory">
+        <Key>
+          <PropertyRef Name="sku"/>
+          <PropertyRef Name="locationId"/>
+        </Key>
+        <Property Name="sku" Type="Edm.String" Nullable="false"/>
+        <Property Name="locationId" Type="Edm.String" Nullable="false"/>
+        <Property Name="quantity" Type="Edm.Decimal" Scale="variable"/>
+        <Property Name="last_updated_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="last_replicated_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="needs_replication" Type="Edm.Boolean" DefaultValue="true"/>
+        <Property Name="replication_attempts" Type="Edm.Int32" DefaultValue="0"/>
+        <Property Name="last_error" Type="Edm.String"/>
+        <NavigationProperty Name="Product" Type="ProductReplicationService.Products" Partner="Inventory">
+          <ReferentialConstraint Property="sku" ReferencedProperty="sap_material"/>
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="ScheduledPrice">
+        <Key>
+          <PropertyRef Name="sku"/>
+          <PropertyRef Name="currency"/>
+        </Key>
+        <Property Name="sku" Type="Edm.String" Nullable="false"/>
+        <Property Name="currency" Type="Edm.String" Nullable="false"/>
+        <Property Name="price" Type="Edm.Decimal" Scale="variable"/>
+        <Property Name="validFrom" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="last_updated_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="last_replicated_at" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="needs_replication" Type="Edm.Boolean" DefaultValue="true"/>
+        <Property Name="replication_attempts" Type="Edm.Int32" DefaultValue="0"/>
+        <Property Name="last_error" Type="Edm.String"/>
+        <NavigationProperty Name="Product" Type="ProductReplicationService.Products" Partner="ScheduledPrice">
+          <ReferentialConstraint Property="sku" ReferencedProperty="sap_material"/>
+        </NavigationProperty>
+      </EntityType>
+      <ComplexType Name="ProductMappingSyncData">
+        <Property Name="sku" Type="Edm.String"/>
+        <Property Name="uom" Type="Edm.String"/>
+        <Property Name="name" Type="Collection(ProductReplicationService.ProductMappingSyncData_name)" Nullable="true"/>
+        <Property Name="desc" Type="Collection(ProductReplicationService.ProductMappingSyncData_desc)" Nullable="true"/>
+      </ComplexType>
+      <ComplexType Name="Products_name">
+        <Property Name="val" Type="Edm.String"/>
+        <Property Name="lang" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="Products_desc">
+        <Property Name="val" Type="Edm.String"/>
+        <Property Name="lang" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="return_ProductReplicationService_SyncProducts">
+        <Property Name="correlationId" Type="Edm.String"/>
+        <Property Name="status" Type="Collection(ProductReplicationService.return_ProductReplicationService_SyncProducts_status)" Nullable="true"/>
+      </ComplexType>
+      <ComplexType Name="return_ProductReplicationService_SyncProducts_status">
+        <Property Name="material" Type="Edm.String"/>
+        <Property Name="status" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="ap_ProductReplicationService_LoadProducts_value">
+        <Property Name="Product" Type="Edm.String"/>
+        <Property Name="BaseUnit" Type="Edm.String"/>
+        <Property Name="_ProductDescription" Type="Collection(ProductReplicationService.ap_ProductReplicationService_LoadProducts_value__ProductDescription)" Nullable="true"/>
+      </ComplexType>
+      <ComplexType Name="ap_ProductReplicationService_LoadProducts_value__ProductDescription">
+        <Property Name="Language" Type="Edm.String"/>
+        <Property Name="ProductDescription" Type="Edm.String"/>
+        <Property Name="Product" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="ProductMappingSyncData_name">
+        <Property Name="val" Type="Edm.String"/>
+        <Property Name="lang" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="ProductMappingSyncData_desc">
+        <Property Name="val" Type="Edm.String"/>
+        <Property Name="lang" Type="Edm.String"/>
+      </ComplexType>
+      <Action Name="SyncProducts" IsBound="false">
+        <Parameter Name="correlationId" Type="Edm.String"/>
+        <Parameter Name="materials" Type="Collection(ProductReplicationService.ProductMappingSyncData)" Nullable="true"/>
+        <Parameter Name="overwrite" Type="Edm.Boolean"/>
+        <ReturnType Type="ProductReplicationService.return_ProductReplicationService_SyncProducts"/>
+      </Action>
+      <Action Name="LoadProducts" IsBound="false">
+        <Parameter Name="value" Type="Collection(ProductReplicationService.ap_ProductReplicationService_LoadProducts_value)" Nullable="true"/>
+      </Action>
+      <Annotations Target="ProductReplicationService.Products/created_at">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.Products/modified_at">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.SyncProducts()/materials">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.SyncProducts()/overwrite">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.LoadProducts()/value">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.ProductMappingSyncData/sku">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.ProductMappingSyncData/uom">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.ProductMappingSyncData/name">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.Products_name/val">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.Products_name/lang">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.Products_desc/val">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.Products_desc/lang">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.return_ProductReplicationService_SyncProducts_status/status">
+        <Annotation Term="Validation.AllowedValues">
+          <Collection>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="PENDING"/>
+              <PropertyValue Property="Value" String="PENDING"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="CREATED"/>
+              <PropertyValue Property="Value" String="CREATED"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="UPDATED"/>
+              <PropertyValue Property="Value" String="UPDATED"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="EXISTING"/>
+              <PropertyValue Property="Value" String="EXISTING"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="ERROR"/>
+              <PropertyValue Property="Value" String="ERROR"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.ProductMappingSyncData_name/val">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.ProductMappingSyncData_name/lang">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.ProductMappingSyncData_desc/val">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+      <Annotations Target="ProductReplicationService.ProductMappingSyncData_desc/lang">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
